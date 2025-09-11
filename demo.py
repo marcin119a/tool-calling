@@ -39,20 +39,18 @@ search_tool = StructuredTool.from_function(search_listings)
 
 tools = [price_tool, search_tool]
 
-template="""Podaj raport dotyczący rynku nieruchomości.
-Miasto: {city}
-Limit ceny: {max_price} PLN
-
-1. Oblicz statystyki cenowe (średnia, mediana, liczba ogłoszeń) dla podanego miasta.
-2. Pokaż kilka mieszkań poniżej limitu ceny dla podanego miasta.
-3. Wynik sformatuj w Markdown z nagłówkami i listą punktowaną, zawierając kluczowe informacje o mieszkaniach (ulica, liczba pokoi, powierzchnia, cena).
-"""
-
+# Create prompt template for real estate reports
 prompt = PromptTemplate(
-   template=template,
-   input_variables=["city", "max_price"]
-)
+    template="""Podaj raport dotyczący rynku nieruchomości.
+    Miasto: {city}
+    Limit ceny: {max_price} PLN
 
+    1. Oblicz statystyki cenowe (średnia, mediana, liczba ogłoszeń) dla podanego miasta.
+    2. Pokaż kilka mieszkań poniżej limitu ceny dla podanego miasta.
+    3. Wynik sformatuj w Markdown z nagłówkami i listą punktowaną, zawierając kluczowe informacje o mieszkaniach (ulica, liczba pokoi, powierzchnia, cena).
+    """,
+    input_variables=["city", "max_price"]
+)
 
 agent = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS)
 
