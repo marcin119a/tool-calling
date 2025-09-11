@@ -9,7 +9,7 @@ import pandas as pd
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-llm = ChatOpenAI(model="gpt-4o", api_key=OPENAI_API_KEY)
+llm = ChatOpenAI(model="gpt-4o-mini", api_key=OPENAI_API_KEY)
 
 df = pd.read_csv("data/adresowo_warszawa_wroclaw.csv")
 
@@ -39,8 +39,21 @@ search_tool = StructuredTool.from_function(search_listings)
 
 tools = [price_tool, search_tool]
 
+template="""Podaj raport dotyczący rynku nieruchomości.
+Miasto: {city}
+Limit ceny: {max_price} PLN
 
-agent = initialize_agent(tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION)
+1. Oblicz statystyki cenowe (średnia, mediana, liczba ogłoszeń) dla podanego miasta.
+2. Pokaż kilka mieszkań poniżej limitu ceny dla podanego miasta.
+3. Wynik sformatuj w Markdown z nagłówkami i listą punktowaną, zawierając kluczowe informacje o mieszkaniach (ulica, liczba pokoi, powierzchnia, cena).
+"""
 
-print(agent.run("Podaj statystyki cenowe dla Warszawy i Wrocławia."))
-print(agent.run("Wyszukaj oferty nieruchomości dla Warszawy i maksymalnej ceny 1000000."))
+prompt = PromptTemplate(
+   template=template,
+   input_variables=["city", "max_price"]
+)
+
+
+agent = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS)
+
+print(agent.run(prompt.format(city="Warszawa", max_price=300000)))
